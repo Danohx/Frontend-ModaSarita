@@ -1,0 +1,259 @@
+.navbar {
+  width: 100%;
+  background-color: var(--color-surface);
+  padding: 0.75rem 1rem; /* Reducido en móvil */
+  border-bottom: 1px solid var(--color-accent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 768px) {
+  .navbar {
+    padding: 0.75rem 2rem;
+  }
+}
+
+.navContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative; /* Para el menú centrado */
+}
+
+/* 1. Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-primary);
+  font-size: 1.25rem; /* Más pequeño en móvil */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  text-decoration: none;
+  z-index: 10; /* Por encima del menú */
+}
+
+@media (min-width: 768px) {
+  .logo {
+    font-size: 1.5rem;
+  }
+}
+
+.logoIcon {
+  color: var(--color-primary-vibrant);
+  font-size: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .logoIcon {
+    font-size: 1.75rem;
+  }
+}
+
+/* 2. Menú de Navegación */
+.navMenu {
+  display: none; /* Oculto en móvil por defecto */
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1.5rem;
+}
+
+/* Tablet: mostrar menú pero sin centrar */
+@media (min-width: 768px) {
+  .navMenu {
+    display: flex;
+    gap: 1.75rem;
+  }
+}
+
+/* Desktop: centrar el menú */
+@media (min-width: 1024px) {
+  .navMenu {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    gap: 2.5rem;
+  }
+}
+
+.navLink {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  opacity: 0.7;
+  text-decoration: none;
+  position: relative;
+  padding: 0.5rem 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  white-space: nowrap; /* Evita que los enlaces se rompan */
+}
+
+.navLink:hover {
+  opacity: 1;
+}
+
+/* Estado activo (el punto rosa) */
+.navLink.active {
+  color: var(--color-primary-vibrant);
+  opacity: 1;
+}
+
+.navLink.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-primary-vibrant);
+}
+
+/* 3. Acciones */
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Reducido en móvil */
+  z-index: 10; /* Por encima del menú */
+}
+
+@media (min-width: 768px) {
+  .navActions {
+    gap: 0.75rem;
+  }
+}
+
+.iconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+  min-width: 40px; /* Área táctil mínima */
+  min-height: 40px;
+}
+
+.iconButton .material-symbols-outlined {
+  font-size: 22px; /* Ligeramente más pequeño en móvil */
+}
+
+@media (min-width: 768px) {
+  .iconButton .material-symbols-outlined {
+    font-size: var(--icon-size); /* 24px */
+  }
+}
+
+.iconButton:hover {
+  background-color: var(--color-accent);
+}
+
+/* Ocultar búsqueda en móvil para ahorrar espacio */
+.searchIcon {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .searchIcon {
+    display: flex; /* Mostrar en tablet+ */
+  }
+}
+
+/* Insignia del Carrito */
+.cartBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: var(--color-primary-vibrant);
+  color: var(--color-text-on-vibrant);
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 4. Lógica de Autenticación */
+.authLinks {
+  display: flex;
+  align-items: center;
+}
+
+.loginButton {
+  font-size: var(--font-size-aux); /* Más pequeño en móvil */
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius-small);
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .loginButton {
+    font-size: var(--font-size-base);
+    padding: 0.5rem 1rem;
+  }
+}
+
+.loginButton:hover {
+  background-color: var(--color-accent);
+}
+
+/* Menu hamburguesa para móvil (opcional) */
+.menuToggle {
+  display: flex;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  padding: 0.5rem;
+  min-width: 40px;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .menuToggle {
+    display: none; /* Ocultar en tablet+ */
+  }
+}
+
+/* Menú móvil desplegable (si decides implementarlo) */
+.mobileMenu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-accent);
+  padding: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.mobileMenu.open {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .mobileMenu {
+    display: none !important; /* Siempre oculto en tablet+ */
+  }
+}

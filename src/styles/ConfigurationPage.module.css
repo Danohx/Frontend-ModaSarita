@@ -1,0 +1,198 @@
+.configPage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem; /* Reducido en móvil */
+  background-color: var(--color-background);
+  min-height: calc(100vh - 60px); /* Navbar más pequeño en móvil */
+}
+
+@media (min-width: 768px) {
+  .configPage {
+    padding: 2rem;
+    min-height: calc(100vh - 80px);
+  }
+}
+
+.configCard {
+  background-color: var(--color-surface);
+  padding: 1.5rem; /* Reducido en móvil */
+  border-radius: var(--border-radius-medium);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-width: 700px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .configCard {
+    padding: 2.5rem 3rem;
+  }
+}
+
+.configCard h1 {
+  font-size: clamp(1.5rem, 4vw, var(--font-size-h2));
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 0.5rem;
+}
+
+.configCard h2 {
+  font-size: clamp(1.25rem, 3vw, var(--font-size-h3));
+  font-weight: var(--font-weight-semibold);
+  margin-top: 1.5rem;
+}
+
+.configCard p {
+  font-size: var(--font-size-base);
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-accent);
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .divider {
+    margin: 2rem 0;
+  }
+}
+
+/* Botón principal */
+.primaryButton {
+  width: 100%; /* Ancho completo en móvil */
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-small);
+  background-color: var(--color-primary-vibrant);
+  color: var(--color-text-on-vibrant);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 1rem;
+  min-height: 48px;
+}
+
+@media (min-width: 768px) {
+  .primaryButton {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primaryButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Sección del QR */
+.qrSection {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.qrContainer {
+  background-color: white;
+  padding: 0.75rem; /* Más pequeño en móvil */
+  border-radius: var(--border-radius-small);
+  display: inline-block;
+  margin: 1rem 0;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .qrContainer {
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+}
+
+/* QR más pequeño en móviles */
+.qrContainer canvas,
+.qrContainer img {
+  max-width: 100%;
+  height: auto;
+}
+
+.verifyForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.otpInput {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--border-radius-small);
+  background-color: transparent;
+  color: var(--color-text);
+  font-size: 1rem; /* Más pequeño en móvil */
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  letter-spacing: 0.3rem;
+}
+
+@media (min-width: 768px) {
+  .otpInput {
+    font-size: 1.2rem;
+    letter-spacing: 0.5rem;
+  }
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: var(--color-primary-vibrant);
+}
+
+/* Mensajes de feedback */
+.errorMessage,
+.successMessage {
+  padding: 0.875rem;
+  border-radius: var(--border-radius-small);
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: var(--font-size-base);
+}
+
+@media (min-width: 768px) {
+  .errorMessage,
+  .successMessage {
+    padding: 1rem;
+  }
+}
+
+.errorMessage {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.successMessage {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap; /* Para que el contenido se ajuste en móvil */
+}
+
+@media (prefers-color-scheme: dark) {
+  .errorMessage {
+    background-color: #5d1c1c;
+    color: #ffcdd2;
+  }
+  .successMessage {
+    background-color: #1f3d21;
+    color: #c8e6c9;
+  }
+}

@@ -1,0 +1,108 @@
+/* src/index.css */
+
+/* --- 1. IMPORTACIONES DE FUENTES --- */
+/* Importamos Manrope (tu fuente corporativa)  */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap');
+/* Importamos Material Symbols (tu set de iconos)  */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0');
+
+:root {
+  /* --- 🎨 MODO CLARO (Pastel) --- */
+  /* (Estos los definimos en el paso anterior) */
+  --color-background: #f8f6f7;
+  --color-surface: #ffffff;
+  --color-text: #5c4b57;
+  --color-primary: #f7d5e9;
+  --color-accent: rgba(247, 213, 233, 0.6);
+  --color-primary-vibrant: #ec1380;
+  --color-text-on-vibrant: #ffffff;
+
+  /* --- ✒️ TIPOGRAFÍA (Según tu Manual de Estilos) --- */
+  --font-primary: "Manrope", sans-serif; 
+
+  /* Tamaños de Fuente  */
+  --font-size-h1: 60px;
+  --font-size-h2: 36px;
+  --font-size-h3: 30px;
+  --font-size-base: 18px;
+  --font-size-aux: 14px;
+
+  /* Pesos de Fuente  */
+  --font-weight-extrabold: 800;
+  --font-weight-bold: 700;
+  --font-weight-semibold: 600;
+  --font-weight-regular: 400;
+
+  /* --- 📐 DISEÑO (Según tu Manual de Estilos) --- */
+  /* Breakpoints  */
+  --breakpoint-mobile: 480px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+
+  /* Iconos [cite: 34] */
+  --icon-size: 24px;
+
+  /* Estilos de Componentes (Basado en ) */
+  --border-radius-medium: 12px;
+  --border-radius-small: 8px;
+}
+
+html.dark {
+  --color-background: #221019;
+  --color-surface: #3e2b36;
+  --color-text: #f8f6f7;
+  --color-primary: #ec1380;
+  --color-accent: rgba(236, 19, 128, 0.6);
+  
+  --color-primary-vibrant: #ec1380;
+  --color-text-on-vibrant: #ffffff;
+}
+
+/* --- 🖌️ Estilos Globales Base --- */
+body {
+  margin: 0;
+  font-family: var(--font-primary); 
+  font-size: var(--font-size-base); 
+  font-weight: var(--font-weight-regular); 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background-color: var(--color-background);
+  color: var(--color-text);
+  
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ========================================= */
+/* Utilidades Responsivas Globales */
+/* ========================================= */
+
+/* Orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+  
+  .navMenu {
+    gap: 1rem;
+  }
+  
+  .content {
+    padding: 0.875rem;
+  }
+}
+
+/* Tablets en landscape */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: landscape) {
+  .navMenu {
+    gap: 1.5rem;
+  }
+}

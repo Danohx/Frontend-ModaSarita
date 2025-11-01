@@ -1,0 +1,280 @@
+/* src/pages/LoginPage.module.css */
+
+/* Contenedor de toda la página */
+.loginPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem; /* Reducido en móvil */
+  background-color: var(--color-background);
+}
+
+/* Tarjeta/Formulario */
+.loginCard {
+  background-color: var(--color-surface);
+  padding: 1.5rem; /* Reducido en móvil */
+  border-radius: var(--border-radius-medium);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Tablet y escritorio */
+@media (min-width: 768px) {
+  .loginPage {
+    padding: 2rem;
+  }
+  
+  .loginCard {
+    padding: 2.5rem 3rem;
+  }
+}
+
+/* Estilos de Texto */
+.loginCard h1 {
+  font-size: clamp(1.5rem, 4vw, var(--font-size-h2)); /* Responsive */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0 0 0.5rem;
+}
+
+.loginCard p {
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  opacity: 0.7;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .loginCard p {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Grupo de Input */
+.inputGroup {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Estilo del ícono */
+.inputIcon {
+  position: absolute;
+  left: 12px; /* Ajustado para móvil */
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--icon-size);
+  color: var(--color-text);
+  opacity: 0.5;
+  transition: color 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .inputIcon {
+    left: 15px;
+  }
+}
+
+/* Campos de Texto */
+.inputGroup input {
+  width: 100%;
+  padding: 0.875rem 0.875rem 0.875rem 2.5rem; /* Ajustado para móvil */
+  border: 2px solid var(--color-accent);
+  border-radius: var(--border-radius-small);
+  background-color: transparent;
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .inputGroup input {
+    padding: 1rem 1rem 1rem 3rem;
+  }
+}
+
+/* Estado Activo del Input */
+.inputGroup input:focus {
+  outline: none;
+  border-color: var(--color-primary-vibrant);
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.inputGroup input:focus + .inputIcon {
+  color: var(--color-primary-vibrant);
+}
+
+/* Botón Principal */
+.submitButton {
+  width: 100%;
+  padding: 0.875rem; /* Ajustado para móvil */
+  border: none;
+  border-radius: var(--border-radius-small);
+  background-color: var(--color-primary-vibrant);
+  color: var(--color-text-on-vibrant);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .submitButton {
+    padding: 1rem;
+  }
+}
+
+.submitButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Touch devices - área más grande para tocar */
+@media (hover: none) and (pointer: coarse) {
+  .submitButton {
+    padding: 1rem;
+    min-height: 48px; /* Mínimo recomendado para táctil */
+  }
+}
+
+/* Enlaces */
+.forgotPassword {
+  display: block;
+  text-align: right;
+  font-size: var(--font-size-aux);
+  color: var(--color-primary-vibrant);
+  text-decoration: none;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .forgotPassword {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.registerLink {
+  margin-top: 1.5rem;
+  font-size: var(--font-size-base);
+}
+
+@media (min-width: 768px) {
+  .registerLink {
+    margin-top: 2rem;
+  }
+}
+
+.registerLink a {
+  color: var(--color-primary-vibrant);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+}
+
+/* Fila de formulario - Stack en móvil, lado a lado en tablet+ */
+.formRow {
+  display: flex;
+  flex-direction: column; /* Stack en móvil */
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .formRow {
+    flex-direction: row; /* Lado a lado en tablet+ */
+  }
+}
+
+.formRow .inputGroup {
+  width: 100%;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-accent);
+  margin: 1.5rem 0;
+}
+
+/* Mensajes */
+.formMessageError,
+.formMessageSuccess {
+  padding: 0.75rem;
+  border-radius: var(--border-radius-small);
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: var(--font-size-aux);
+}
+
+.formMessageError {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.formMessageSuccess {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+@media (prefers-color-scheme: dark) {
+  .formMessageError {
+    background-color: #5d1c1c;
+    color: #ffcdd2;
+  }
+  .formMessageSuccess {
+    background-color: #1f3d21;
+    color: #c8e6c9;
+  }
+}
+
+.smallText {
+  font-size: var(--font-size-aux);
+  opacity: 0.8;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.secondaryButton {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--border-radius-small);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  margin-top: 1rem;
+  min-height: 48px; /* Para touch */
+}
+
+@media (min-width: 768px) {
+  .secondaryButton {
+    padding: 1rem;
+  }
+}
+
+.secondaryButton:hover {
+  background-color: var(--color-background);
+  border-color: var(--color-primary-vibrant);
+}
+
+.successIcon {
+  font-size: 2.5rem; /* Más pequeño en móvil */
+  color: #2e7d32;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .successIcon {
+    font-size: 3rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .successIcon {
+    color: #c8e6c9;
+  }
+}

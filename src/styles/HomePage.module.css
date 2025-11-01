@@ -1,0 +1,71 @@
+.homePage {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem; /* Reducido en móvil */
+}
+
+@media (min-width: 768px) {
+  .homePage {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .homePage {
+    padding: 2rem;
+  }
+}
+
+.pageTitle {
+  font-size: clamp(1.75rem, 5vw, var(--font-size-h1)); /* Responsive */
+  font-weight: var(--font-weight-extrabold);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .pageTitle {
+    margin-bottom: 2rem;
+  }
+}
+
+.productGrid {
+  display: grid;
+  gap: 1rem; /* Reducido en móvil */
+  grid-template-columns: 1fr; /* Mobile: 1 columna */
+}
+
+/* Tablet: 2 columnas */
+@media (min-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+/* Desktop pequeño: 3 columnas */
+@media (min-width: 1024px) {
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Desktop grande: 4 columnas */
+@media (min-width: 1280px) {
+  .productGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-width: 767px) and (orientation: landscape) {
+  .productGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .loginPage,
+  .configPage {
+    padding: 1rem 2rem;
+  }
+}
