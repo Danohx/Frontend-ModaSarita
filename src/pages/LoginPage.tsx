@@ -4,9 +4,16 @@ import axios from 'axios'
 import styles from '../styles/LoginPage.module.css'
 import { useAuth } from '../context/AuthContext'
 
-type LoginMode = 'password' | 'magiclink' | 'magiclink-sent'
+// 1. Agregamos los nuevos modos para la recuperación
+type LoginMode = 
+  | 'password' 
+  | 'magiclink' 
+  | 'magiclink-sent' 
+  | 'forgot-password'      // <--- Formulario para pedir correo
+  | 'forgot-password-sent' // <--- Mensaje de éxito
 
 const API_URL = import.meta.env.VITE_API_URL;
+
 const LoginPage = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
@@ -26,6 +33,7 @@ const LoginPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  // ===== LOGIN NORMAL =====
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -48,10 +56,16 @@ const LoginPage = () => {
       }
     } catch (err: any) {
       setIsLoading(false)
-      setError(err.response?.data?.mensaje || 'Error al iniciar sesión.')
+      // Manejo especial para el 429 (Rate Limit) que configuramos antes
+      if (err.response?.status === 429) {
+          setError(err.response.data?.mensaje || "Demasiados intentos. Intenta más tarde.");
+      } else {
+          setError(err.response?.data?.mensaje || 'Error al iniciar sesión.')
+      }
     }
   }
 
+  // ===== MAGIC LINK =====
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -68,6 +82,7 @@ const LoginPage = () => {
     }
   }
 
+  // ===== 2FA VERIFY =====
   const handle2FASubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -85,6 +100,27 @@ const LoginPage = () => {
     }
   }
 
+  // ===== NUEVO: RECUPERAR CONTRASEÑA =====
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
+    try {
+      // Llamamos al endpoint que creamos en el paso anterior
+      await axios.post(`${API_URL}/auth/forgot-password`, {
+        correo: formData.correo,
+      })
+      setIsLoading(false)
+      setMode('forgot-password-sent') // Cambiamos a la vista de éxito
+    } catch (err: any) {
+      setIsLoading(false)
+      setError(err.response?.data?.mensaje || 'Error al solicitar recuperación.')
+    }
+  }
+
+  // ---------------- RENDERIZADO ----------------
+
+  // 1. VISTA DE 2FA
   if (requires2FA) {
     return (
       <div className={styles.loginPage}>
@@ -106,6 +142,7 @@ const LoginPage = () => {
     )
   }
 
+  // 2. VISTA ÉXITO MAGIC LINK
   if (mode === 'magiclink-sent') {
     return (
       <div className={styles.loginPage}>
@@ -122,6 +159,60 @@ const LoginPage = () => {
     )
   }
 
+  // 3. VISTA ÉXITO RECUPERACIÓN (NUEVO)
+  if (mode === 'forgot-password-sent') {
+    return (
+      <div className={styles.loginPage}>
+        <div className={styles.loginCard}>
+          <span className={`material-symbols-outlined ${styles.successIcon}`}>lock_reset</span>
+          <h1>Solicitud enviada</h1>
+          <p>Si el correo <strong>{formData.correo}</strong> existe, recibirás instrucciones para restablecer tu contraseña.</p>
+          <p className={styles.smallText}>(Revisa tu bandeja de spam)</p>
+          <button onClick={() => setMode('password')} className={styles.secondaryButton}>
+            Volver al inicio de sesión
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // 4. VISTA FORMULARIO RECUPERACIÓN (NUEVO)
+  if (mode === 'forgot-password') {
+    return (
+        <div className={styles.loginPage}>
+        <div className={styles.loginCard}>
+          <h1>Recuperar Contraseña</h1>
+          <p>Ingresa tu correo para buscar tu cuenta.</p>
+
+          <form onSubmit={handleForgotPasswordSubmit}>
+            <div className={styles.inputGroup}>
+              <span className={`material-symbols-outlined ${styles.inputIcon}`}>mail</span>
+              <input 
+                type="email" 
+                name="correo" 
+                placeholder="Correo electrónico" 
+                value={formData.correo} // Mantiene lo que el usuario ya escribió
+                onChange={handleChange} 
+                required 
+              />
+            </div>
+            
+            {error && <div className={styles.formMessageError}>{error}</div>}
+            
+            <button type="submit" className={styles.submitButton} disabled={isLoading}>
+              {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+            </button>
+          </form>
+
+          <button onClick={() => setMode('password')} className={styles.secondaryButton} style={{marginTop: '10px'}}>
+            Cancelar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // 5. VISTA PRINCIPAL (LOGIN / MAGIC LINK)
   return (
     <div className={styles.loginPage}>
       <div className={styles.loginCard}>
@@ -132,13 +223,23 @@ const LoginPage = () => {
           <form onSubmit={handlePasswordSubmit}>
             <div className={styles.inputGroup}>
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>mail</span>
-              <input type="email" name="correo" placeholder="Correo electrónico" onChange={handleChange} required />
+              <input type="email" name="correo" value={formData.correo} placeholder="Correo electrónico" onChange={handleChange} required />
             </div>
             <div className={styles.inputGroup}>
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>lock</span>
               <input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} required />
             </div>
-            <a href="#" className={styles.forgotPassword}>¿Olvidaste tu contraseña?</a>
+            
+            {/* AQUÍ ESTÁ EL CAMBIO CLAVE EN EL LINK */}
+            <button 
+                type="button" 
+                className={styles.forgotPassword} 
+                onClick={() => setMode('forgot-password')}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+            >
+                ¿Olvidaste tu contraseña?
+            </button>
+
             {error && <div className={styles.formMessageError}>{error}</div>}
             <button type="submit" className={styles.submitButton} disabled={isLoading}>
               {isLoading ? 'Ingresando...' : 'Iniciar sesión'}
@@ -148,7 +249,7 @@ const LoginPage = () => {
           <form onSubmit={handleMagicLinkSubmit}>
             <div className={styles.inputGroup}>
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>mail</span>
-              <input type="email" name="correo" placeholder="Correo electrónico" onChange={handleChange} required />
+              <input type="email" name="correo" value={formData.correo} placeholder="Correo electrónico" onChange={handleChange} required />
             </div>
             <p className={styles.smallText}>Te enviaremos un enlace para iniciar sesión sin contraseña.</p>
             {error && <div className={styles.formMessageError}>{error}</div>}

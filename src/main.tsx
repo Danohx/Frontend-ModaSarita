@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute.tsx'
 import ConfigurationPage from './pages/ConfigurationPage.tsx'
 import MagicVerifyPage from './pages/MagicVerifyPage.tsx'
 import Error404 from './pages/Error404.tsx'
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx'
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       { path: 'registro', element: <RegisterPage /> },
       { path: 'magic-verify/:token', element: <MagicVerifyPage /> },
+      { path: 'reset-password', element: <ResetPasswordPage /> },
       // --- Rutas Protegidas ---
       {
         element: <ProtectedRoute />,
