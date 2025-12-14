@@ -97,20 +97,23 @@ const LoginPage = () => {
 
   // 4. RECUPERAR CONTRASEÑA (Enviar correo)
   const handleForgotPasswordSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsLoading(true)
-    try {
-      await axios.post(`${API_URL}/auth/forgot-password`, { correo: formData.correo })
-      setIsLoading(false)
-      
-      // AQUÍ OCURRE LA MAGIA: Cambiamos al modo "mensaje enviado"
-      setMode('forgot-password-sent') 
-    } catch (err: any) {
-      setIsLoading(false)
-      setError(err.response?.data?.mensaje || 'Error al solicitar recuperación.')
-    }
-  }
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
+    try {
+      await axios.post(`${API_URL}/auth/forgot-password`, { correo: formData.correo })
+      setIsLoading(false)
+      setMode('forgot-password-sent') 
+    } catch (err: any) {
+      setIsLoading(false)
+      // 👇 NUEVO: Manejo específico para cuando superas el límite de intentos
+      if (err.response?.status === 429) {
+          setError("Has superado el límite de intentos. Por favor espera unos minutos.");
+      } else {
+          setError(err.response?.data?.mensaje || 'Error al solicitar recuperación.')
+      }
+    }
+  }
 
   // --- RENDERIZADO ---
 
@@ -154,24 +157,33 @@ const LoginPage = () => {
 
   // C. ÉXITO RECUPERACIÓN (Aquí está el cambio que pediste)
   if (mode === 'forgot-password-sent') {
-    return (
-      <div className={styles.loginPage}>
-        <div className={styles.loginCard}>
-          <span className={`material-symbols-outlined ${styles.successIcon}`}>lock_reset</span>
-          <h1>Solicitud enviada</h1>
-          <p>Si el correo <strong>{formData.correo}</strong> existe, recibirás instrucciones.</p>
-          <p className={styles.smallText}>(Revisa spam por si acaso)</p>
-          
-          {/* Al dar clic aquí, volvemos al LOGIN ('password'). 
-              Si el usuario vuelve a dar clic en "Olvidé contraseña", 
-              el código de abajo ejecutará setMode('forgot-password'), mostrando el formulario de nuevo. */}
-          <button onClick={() => setMode('password')} className={styles.secondaryButton}>
-            Volver al inicio de sesión
-          </button>
-        </div>
-      </div>
-    )
-  }
+    return (
+      <div className={styles.loginPage}>
+        <div className={styles.loginCard}>
+          <span className={`material-symbols-outlined ${styles.successIcon}`}>lock_reset</span>
+          <h1>Solicitud enviada</h1>
+          <p>Si el correo <strong>{formData.correo}</strong> existe, recibirás instrucciones.</p>
+          <p className={styles.smallText}>(Revisa spam por si acaso)</p>
+          
+          {/* 👇 NUEVO: Botón para limpiar y probar otro correo rápidamente */}
+          <button 
+            onClick={() => {
+                setFormData(prev => ({ ...prev, correo: '' })); // Limpiamos el correo
+                setMode('forgot-password'); // Volvemos al formulario
+            }} 
+            className={styles.submitButton} // Usamos estilo primario para invitar a la acción si es testing
+            style={{ marginBottom: '10px' }}
+          >
+            Intentar con otro correo
+          </button>
+
+          <button onClick={() => setMode('password')} className={styles.secondaryButton}>
+            Volver al inicio de sesión
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   // D. FORMULARIO RECUPERACIÓN (Input)
   if (mode === 'forgot-password') {
