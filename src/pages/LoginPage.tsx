@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import styles from '../styles/LoginPage.module.css'
 import { useAuth } from '../context/AuthContext'
 
-// 1. Agregamos los nuevos modos para la recuperación
+// Definimos los estados posibles de la pantalla
 type LoginMode = 
-  | 'password' 
-  | 'magiclink' 
-  | 'magiclink-sent' 
-  | 'forgot-password'      // <--- Formulario para pedir correo
-  | 'forgot-password-sent' // <--- Mensaje de éxito
+  | 'password'             // Login normal
+  | 'magiclink'            // Login con enlace mágico
+  | 'magiclink-sent'       // Mensaje éxito enlace mágico
+  | 'forgot-password'      // FORMULARIO para pedir recuperación
+  | 'forgot-password-sent' // MENSAJE éxito recuperación
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,8 +18,10 @@ const LoginPage = () => {
   const navigate = useNavigate()
   const { login } = useAuth()
 
+  // Inicializamos en modo password
   const [mode, setMode] = useState<LoginMode>('password')
 
+  const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({ correo: '', contrasena: '' })
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -28,35 +30,32 @@ const LoginPage = () => {
   const [tempToken, setTempToken] = useState('')
   const [otpCode, setOtpCode] = useState('')
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // ===== LOGIN NORMAL =====
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+  // 1. LOGIN
+  const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
     try {
-      const response = await axios.post(
-        `${API_URL}/auth/login`,
-        {
+      const response = await axios.post(`${API_URL}/auth/login`, {
           correo: formData.correo,
           contrasena: formData.contrasena,
-        }
-      )
+      })
       if (response.data.requires2FA) {
         setRequires2FA(true)
         setTempToken(response.data.tempToken)
         setIsLoading(false)
       } else {
-        login(response.data.accessToken)
+        const { accessToken, refreshToken, user } = response.data;
+        login(accessToken, refreshToken, user || { nombre: 'Usuario' })
         navigate('/')
       }
     } catch (err: any) {
       setIsLoading(false)
-      // Manejo especial para el 429 (Rate Limit) que configuramos antes
       if (err.response?.status === 429) {
           setError(err.response.data?.mensaje || "Demasiados intentos. Intenta más tarde.");
       } else {
@@ -65,15 +64,13 @@ const LoginPage = () => {
     }
   }
 
-  // ===== MAGIC LINK =====
-  const handleMagicLinkSubmit = async (e: React.FormEvent) => {
+  // 2. MAGIC LINK
+  const handleMagicLinkSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
     try {
-      await axios.post(`${API_URL}/auth/magic-link`, {
-        correo: formData.correo,
-      })
+      await axios.post(`${API_URL}/auth/magic-link`, { correo: formData.correo })
       setIsLoading(false)
       setMode('magiclink-sent')
     } catch (err: any) {
@@ -82,17 +79,15 @@ const LoginPage = () => {
     }
   }
 
-  // ===== 2FA VERIFY =====
-  const handle2FASubmit = async (e: React.FormEvent) => {
+  // 3. VERIFICAR 2FA
+  const handle2FASubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
     try {
-      const response = await axios.post(
-        `${API_URL}/auth/2fa-verify`,
-        { tempToken, otpCode }
-      )
-      login(response.data.accessToken)
+      const response = await axios.post(`${API_URL}/auth/2fa-verify`, { tempToken, otpCode })
+      const { accessToken, refreshToken, user } = response.data;
+      login(accessToken, refreshToken, user || { nombre: 'Usuario' })
       navigate('/')
     } catch (err: any) {
       setIsLoading(false)
@@ -100,27 +95,26 @@ const LoginPage = () => {
     }
   }
 
-  // ===== NUEVO: RECUPERAR CONTRASEÑA =====
-  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
+  // 4. RECUPERAR CONTRASEÑA (Enviar correo)
+  const handleForgotPasswordSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
     try {
-      // Llamamos al endpoint que creamos en el paso anterior
-      await axios.post(`${API_URL}/auth/forgot-password`, {
-        correo: formData.correo,
-      })
+      await axios.post(`${API_URL}/auth/forgot-password`, { correo: formData.correo })
       setIsLoading(false)
-      setMode('forgot-password-sent') // Cambiamos a la vista de éxito
+      
+      // AQUÍ OCURRE LA MAGIA: Cambiamos al modo "mensaje enviado"
+      setMode('forgot-password-sent') 
     } catch (err: any) {
       setIsLoading(false)
       setError(err.response?.data?.mensaje || 'Error al solicitar recuperación.')
     }
   }
 
-  // ---------------- RENDERIZADO ----------------
+  // --- RENDERIZADO ---
 
-  // 1. VISTA DE 2FA
+  // A. VISTA DE 2FA
   if (requires2FA) {
     return (
       <div className={styles.loginPage}>
@@ -142,7 +136,7 @@ const LoginPage = () => {
     )
   }
 
-  // 2. VISTA ÉXITO MAGIC LINK
+  // B. ÉXITO MAGIC LINK
   if (mode === 'magiclink-sent') {
     return (
       <div className={styles.loginPage}>
@@ -150,7 +144,6 @@ const LoginPage = () => {
           <span className={`material-symbols-outlined ${styles.successIcon}`}>mark_email_read</span>
           <h1>Revisa tu correo</h1>
           <p>Te hemos enviado un enlace mágico a <strong>{formData.correo}</strong>.</p>
-          <p className={styles.smallText}>(El enlace expira en 5 minutos)</p>
           <button onClick={() => setMode('password')} className={styles.secondaryButton}>
             Volver al inicio de sesión
           </button>
@@ -159,15 +152,19 @@ const LoginPage = () => {
     )
   }
 
-  // 3. VISTA ÉXITO RECUPERACIÓN (NUEVO)
+  // C. ÉXITO RECUPERACIÓN (Aquí está el cambio que pediste)
   if (mode === 'forgot-password-sent') {
     return (
       <div className={styles.loginPage}>
         <div className={styles.loginCard}>
           <span className={`material-symbols-outlined ${styles.successIcon}`}>lock_reset</span>
           <h1>Solicitud enviada</h1>
-          <p>Si el correo <strong>{formData.correo}</strong> existe, recibirás instrucciones para restablecer tu contraseña.</p>
-          <p className={styles.smallText}>(Revisa tu bandeja de spam)</p>
+          <p>Si el correo <strong>{formData.correo}</strong> existe, recibirás instrucciones.</p>
+          <p className={styles.smallText}>(Revisa spam por si acaso)</p>
+          
+          {/* Al dar clic aquí, volvemos al LOGIN ('password'). 
+              Si el usuario vuelve a dar clic en "Olvidé contraseña", 
+              el código de abajo ejecutará setMode('forgot-password'), mostrando el formulario de nuevo. */}
           <button onClick={() => setMode('password')} className={styles.secondaryButton}>
             Volver al inicio de sesión
           </button>
@@ -176,7 +173,7 @@ const LoginPage = () => {
     )
   }
 
-  // 4. VISTA FORMULARIO RECUPERACIÓN (NUEVO)
+  // D. FORMULARIO RECUPERACIÓN (Input)
   if (mode === 'forgot-password') {
     return (
         <div className={styles.loginPage}>
@@ -191,33 +188,32 @@ const LoginPage = () => {
                 type="email" 
                 name="correo" 
                 placeholder="Correo electrónico" 
-                value={formData.correo} // Mantiene lo que el usuario ya escribió
+                value={formData.correo} 
                 onChange={handleChange} 
                 required 
               />
             </div>
-            
             {error && <div className={styles.formMessageError}>{error}</div>}
-            
             <button type="submit" className={styles.submitButton} disabled={isLoading}>
-              {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+              {isLoading ? 'Enviando...' : 'Enviar enlace'}
             </button>
           </form>
 
+          {/* Botón cancelar: Vuelve al login */}
           <button onClick={() => setMode('password')} className={styles.secondaryButton} style={{marginTop: '10px'}}>
-            Cancelar
+            Cancelar / Volver
           </button>
         </div>
       </div>
     )
   }
 
-  // 5. VISTA PRINCIPAL (LOGIN / MAGIC LINK)
+  // E. VISTA PRINCIPAL (LOGIN)
   return (
     <div className={styles.loginPage}>
       <div className={styles.loginCard}>
         <h1>Iniciar sesión</h1>
-        <p>Bienvenido de nuevo a tu boutique de confianza</p>
+        <p>Bienvenido de nuevo</p>
 
         {mode === 'password' ? (
           <form onSubmit={handlePasswordSubmit}>
@@ -225,12 +221,35 @@ const LoginPage = () => {
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>mail</span>
               <input type="email" name="correo" value={formData.correo} placeholder="Correo electrónico" onChange={handleChange} required />
             </div>
-            <div className={styles.inputGroup}>
+            
+            <div className={styles.inputGroup} style={{ position: 'relative' }}>
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>lock</span>
-              <input type="password" name="contrasena" placeholder="Contraseña" onChange={handleChange} required />
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="contrasena" 
+                placeholder="Contraseña" 
+                onChange={handleChange} 
+                required 
+              />
+              <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{ 
+                      background: 'none', border: 'none', cursor: 'pointer', 
+                      position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                      color: '#666'
+                  }}
+              >
+                  <span className="material-symbols-outlined">
+                      {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+              </button>
             </div>
             
-            {/* AQUÍ ESTÁ EL CAMBIO CLAVE EN EL LINK */}
+            {/* AQUÍ ESTÁ LA SOLUCIÓN:
+                Este botón establece explícitamente el modo 'forgot-password'.
+                Esto garantiza que siempre se muestre el formulario, 
+                incluso si antes se mostró el mensaje de éxito. */}
             <button 
                 type="button" 
                 className={styles.forgotPassword} 
@@ -246,6 +265,7 @@ const LoginPage = () => {
             </button>
           </form>
         ) : (
+          // Vista Magic Link Form
           <form onSubmit={handleMagicLinkSubmit}>
             <div className={styles.inputGroup}>
               <span className={`material-symbols-outlined ${styles.inputIcon}`}>mail</span>

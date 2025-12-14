@@ -1,23 +1,31 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react'; // Importamos FormEvent
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import styles from '../styles/LoginPage.module.css'; // Reutilizamos estilos del login
+import styles from '../styles/LoginPage.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+// Definimos la interfaz para el mensaje
+interface MensajeEstado {
+  texto: string;
+  tipo: 'error' | 'exito';
+}
 
 const ResetPasswordPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
-  // Obtenemos el token de la URL (ej: ?token=abc...)
   const token = searchParams.get('token');
 
   const [nuevaContrasena, setNuevaContrasena] = useState('');
   const [confirmarContrasena, setConfirmarContrasena] = useState('');
-  const [mensaje, setMensaje] = useState<{ texto: string; tipo: 'error' | 'exito' } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Tipado explícito para el mensaje
+  const [mensaje, setMensaje] = useState<MensajeEstado | null>(null);
   const [cargando, setCargando] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Tipado del evento 'e'
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setMensaje(null);
 
@@ -31,7 +39,6 @@ const ResetPasswordPage = () => {
       return;
     }
 
-    // Validación visual de complejidad (para mejor UX)
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#_-])[A-Za-z\d@$!%*?&.#_-]{8,}$/;
     if (!passwordRegex.test(nuevaContrasena)) {
         setMensaje({ texto: "La contraseña es muy débil (Requiere Mayúscula, Minúscula, Número y Símbolo)", tipo: 'error' });
@@ -47,8 +54,6 @@ const ResetPasswordPage = () => {
       });
 
       setMensaje({ texto: "¡Contraseña actualizada! Redirigiendo...", tipo: 'exito' });
-      
-      // Redirigir al login después de 3 segundos
       setTimeout(() => {
         navigate('/login');
       }, 3000);
@@ -63,7 +68,6 @@ const ResetPasswordPage = () => {
     }
   };
 
-  // Si no hay token en la URL, mostramos error directo
   if (!token) {
     return (
         <div className={styles.loginPage}>
@@ -85,15 +89,29 @@ const ResetPasswordPage = () => {
         <p>Introduce tu nueva contraseña segura.</p>
 
         <form onSubmit={handleSubmit}>
-          <div className={styles.inputGroup}>
+          
+          <div className={styles.inputGroup} style={{ position: 'relative' }}>
             <span className={`material-symbols-outlined ${styles.inputIcon}`}>lock</span>
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               placeholder="Nueva contraseña" 
               value={nuevaContrasena}
               onChange={(e) => setNuevaContrasena(e.target.value)}
               required 
             />
+            <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ 
+                    background: 'none', border: 'none', cursor: 'pointer', 
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                    color: '#666'
+                }}
+            >
+                <span className="material-symbols-outlined">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+            </button>
           </div>
 
           <div className={styles.inputGroup}>

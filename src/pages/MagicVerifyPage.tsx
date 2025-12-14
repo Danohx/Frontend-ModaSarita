@@ -37,7 +37,8 @@ const MagicVerifyPage = () => {
           setTempToken(response.data.tempToken)
           setIsLoading(false)
         } else {
-          login(response.data.accessToken)
+          const { accessToken, refreshToken, user } = response.data;
+          login(accessToken, refreshToken, user || { nombre: 'Usuario' })
           navigate('/', { replace: true })
         }
       } catch (err: any) {
@@ -58,8 +59,8 @@ const MagicVerifyPage = () => {
         `${API_URL}/auth/2fa-verify`,
         { tempToken, otpCode }
       )
-      
-      login(response.data.accessToken)
+      const { accessToken, refreshToken, user } = response.data;
+      login(accessToken, refreshToken, user || { nombre: 'Usuario' })
       navigate('/', { replace: true })
       
     } catch (err: any) {

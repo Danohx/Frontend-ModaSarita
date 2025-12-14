@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { QRCodeSVG } from 'qrcode.react'
 import styles from '../styles/ConfigurationPage.module.css'
 import { useAuth } from '../context/AuthContext'
+import api from '../api/axios'
 
-const API_URL = import.meta.env.VITE_API_URL;
 const ConfigurationPage = () => {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, logout, logoutAllDevices } = useAuth()
 
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null)
   const [otpCode, setOtpCode] = useState('')
@@ -15,17 +14,11 @@ const ConfigurationPage = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSetup2FA = async () => {
-    setIsLoading(true)
-    setError(null)
-    setSuccess(null)
+    setIsLoading(true); setError(null); setSuccess(null);
     try {
-      const response = await axios.post(
-        `${API_URL}/security/2fa/setup`
-      )
-      
+      const response = await api.post('/security/2fa/setup')
       setQrCodeUrl(response.data.otpauth_url)
       setIsLoading(false)
-      
     } catch (err: any) {
       setIsLoading(false)
       setError(err.response?.data?.mensaje || 'Error al iniciar la configuración 2FA.')
@@ -38,10 +31,10 @@ const ConfigurationPage = () => {
     setError(null)
     
     try {
-      const response = await axios.post(
-        `${API_URL}/security/2fa/enable`,
-        { token: otpCode }       )
-      
+      const response = await api.post(
+        '/security/2fa/enable',
+        { token: otpCode }
+      )
       setSuccess(response.data.message)
       setQrCodeUrl(null)
       setIsLoading(false)
@@ -61,9 +54,27 @@ const ConfigurationPage = () => {
       <div className={styles.configCard}>
         <h1>Configuración de Seguridad</h1>
         <p>
-          Administra tus métodos de autenticación para proteger tu cuenta.
+          Administra la seguridad de tu cuenta.
         </p>
 
+        {/* === SECCIÓN 1: CIERRE DE SESIÓN === */}
+        <div className={styles.sessionSection}>
+            <h2>Sesiones Activas</h2>
+            <div className={styles.buttonGroup}>
+                <button onClick={logout} className={styles.secondaryButton}>
+                    Cerrar sesión actual
+                </button>
+                
+                {/* Botón de Pánico */}
+                <button onClick={logoutAllDevices} className={styles.dangerButton}>
+                    ⚠️ Cerrar sesión en TODOS los dispositivos
+                </button>
+            </div>
+            <p className={styles.smallText}>
+                Úsalo si crees que alguien más accedió a tu cuenta.
+            </p>
+        </div>
+        
         <hr className={styles.divider} />
 
         <h2>Autenticación de Dos Factores (2FA)</h2>

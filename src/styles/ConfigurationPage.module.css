@@ -186,6 +186,55 @@
   flex-wrap: wrap; /* Para que el contenido se ajuste en móvil */
 }
 
+.sessionSection {
+  margin-bottom: 30px;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.secondaryButton {
+  padding: 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.secondaryButton:hover {
+  background-color: #e0e0e0;
+}
+
+.dangerButton {
+  padding: 12px;
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #d32f2f;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.dangerButton:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.smallText {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+  text-align: center;
+}
+
 @media (prefers-color-scheme: dark) {
   .errorMessage {
     background-color: #5d1c1c;
