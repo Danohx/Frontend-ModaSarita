@@ -25,14 +25,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Cargar sesión al iniciar la app
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const token = localStorage.getItem('accessToken');
-    
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
+    const checkSession = async () => {
+      const storedUser = localStorage.getItem('user');
+      const token = localStorage.getItem('accessToken');
+      
+      if (storedUser && token) {
+        try {
+          // INTENTAMOS VERIFICAR CON EL BACKEND
+          // Si el middleware nuevo dice que no hay sesión en BD, esto fallará.
+          await api.get('/auth/verify');
+          
+          // Si pasa, cargamos los datos
+          setUser(JSON.parse(storedUser));
+          setIsAuthenticated(true);
+        } catch (error) {
+          // Si falla (401 porque borraste sesiones), limpiamos todo
+          console.log("Sesión inválida al iniciar.");
+          localStorage.clear();
+          setUser(null);
+          setIsAuthenticated(false);
+        }
+      }
+      setLoading(false);
+    };
+    checkSession();
   }, []);
 
   const login = (accessToken: string, refreshToken: string, userData: User) => {
